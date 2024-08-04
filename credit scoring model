@@ -1,0 +1,37 @@
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+np.random.seed(42)
+num_samples = 1000
+income = np.random.normal(50000, 15000, num_samples)  
+debt = np.random.normal(15000, 5000, num_samples)     
+credit_history = np.random.randint(1, 11, num_samples)  
+creditworthiness = (
+    (income - debt) / 10000 + credit_history + np.random.normal(0, 1, num_samples) > 7
+).astype(int)
+data = pd.DataFrame({
+    'Income': income,
+    'Debt': debt,
+    'CreditHistory': credit_history,
+    'Creditworthiness': creditworthiness
+})
+X = data[['Income', 'Debt', 'CreditHistory']]
+y = data['Creditworthiness']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+model = LogisticRegression()
+model.fit(X_train_scaled, y_train)
+y_pred = model.predict(X_test_scaled)
+accuracy = accuracy_score(y_test, y_pred)
+conf_matrix = confusion_matrix(y_test, y_pred)
+class_report = classification_report(y_test, y_pred)
+print(f"Accuracy: {accuracy:.2f}")
+print("Confusion Matrix:")
+print(conf_matrix)
+print("Classification Report:")
+print(class_report)
